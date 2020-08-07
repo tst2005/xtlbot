@@ -63,41 +63,41 @@ function core.init()
     client:settimeout(1)
 
     -- setup callbacks
-    irc:set_send_func(function(message)
+    irc:set_send_func(function(self, message)
         return client:send(message)
     end)
 
     if config.debug_protocol then
-        irc:set_callback("RAW", function(send, message)
+        irc:set_callback("RAW", function(self, send, message)
             print(("%s %s"):format(send and ">>>" or "<<<", message))
         end)
     end
 
-    irc:set_callback("001", function(...)
+    irc:set_callback("001", function(self, _ign)
         assert(irc:JOIN(config.channel))
     end)
 
-    irc:set_callback("JOIN", function(sender)
+    irc:set_callback("JOIN", function(self, sender)
         if config.show_join_leave then
-            print(sender[1] .. " joined")
+            print(sender[1] .. " joined ")
         end
 
-        local user = users.get(sender[1])
-        local role = users.get_role(user.role)
-        if role.autosetmod then
-            core.send(".mod " .. user.name)
-        end
+--        local user = users.get(sender[1])
+--        local role = users.get_role(user.role)
+--        if role.autosetmod then
+--            core.send(".mod " .. user.name)
+--        end
     end)
 
     if config.show_join_leave then
-        irc:set_callback("PART", function(sender)
+        irc:set_callback("PART", function(self, sender)
             print(sender[1] .. " left")
         end)
     end
 
-    irc:set_callback("PRIVMSG", function(sender, origin, msg, pm)
+    irc:set_callback("PRIVMSG", function(self, sender, origin, msg, pm)
         if config.show_messages then
-            print(sender[1] .. ": " .. msg)
+            print(tostring(sender[1]) .. ": " .. tostring(msg))
         end
 
         for _,hook in ipairs(premsg_hooks) do
@@ -124,8 +124,14 @@ function core.init()
     assert(client:connect(config.server, config.port))
 
     print("Connection successful, logging in as " .. config.username)
-    assert(irc:PASS(config.token))
-    assert(irc:NICK(config.username))
+    if config.token then
+        assert(irc:PASS(config.token))
+    end
+    local nickname = config.nickname or config.username
+    assert(irc:NICK(nickname))
+    local realname = config.realname or config.username or ""
+    local mode = nil -- 0 or 8 ?! https://tools.ietf.org/html/rfc2812#section-3.1.3
+    assert(irc:USER(config.username, realname, mode))
 
     users.init(core)
     commands.init(core)
