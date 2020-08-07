@@ -1,6 +1,7 @@
 -- xtlbot configuration script
 
-require("src.stringutils")
+local trim = require("src.stringutils.trim")
+local explode = require("src.stringutils.explode")
 local info = require("src.info")
 
 local function file_exists(name)
@@ -271,14 +272,14 @@ if not skip_plugins then
         io.flush()
         local plugin_str = io.read()
 
-        if string.trim(plugin_str) == '' then
+        if trim(plugin_str) == '' then
             print("Not configuring any plugins.")
             plugins = {}
             plugins_done = true
             break
         end
 
-        plugins = string.explode(" ", plugin_str)
+        plugins = explode(" ", plugin_str)
         local plugins_ok = true
         for i,v in ipairs(plugins) do
             local sel = tonumber(v)

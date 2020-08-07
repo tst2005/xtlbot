@@ -7,9 +7,7 @@ local remove = table.remove
 local type = type
 local pcall = pcall
 
-require "src.stringutils"
-
-local explode = string.explode
+local explode = require "src.stringutils.explode"
 
 local core
 local users = require("src.users")

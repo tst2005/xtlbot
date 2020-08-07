@@ -21,7 +21,9 @@ They aren't as powerful. I suggest installing either LPeg or lrexlib-pcre if you
 Lua's inbuilt pattern matching.
 ]]
 
-require("src.stringutils")
+local has_url = require("src.stringutils.has_url")
+local caps_percent = require("src.stringutils.caps_percent")
+local symbols_percent = require("src.stringutils.symbols_percent")
 local lang = require("src.lang")
 
 local config = {
@@ -29,7 +31,7 @@ local config = {
         -- URL Rule
         {
             message = lang.filter.url,
-            match = string.has_url
+            match = has_url
         },
 
         -- Caps rule
@@ -37,7 +39,7 @@ local config = {
         -- Change the "4" and "0.8" in the match line to change these values.
         {
             message = lang.filter.caps,
-            match = function(str) return #str > 4 and string.caps_percent(str) > 0.8 end
+            match = function(str) return #str > 4 and caps_percent(str) > 0.8 end
         },
 
         -- Symbols rule
@@ -45,7 +47,7 @@ local config = {
         -- Change the "4" and "0.8" in the match line to change these values.
         {
             message = lang.filter.symbols,
-            match = function(str) return #str > 4 and string.symbols_percent(str) > 0.8 end
+            match = function(str) return #str > 4 and symbols_percent(str) > 0.8 end
         }
     }
 }
