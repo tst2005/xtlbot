@@ -20,115 +20,115 @@ local recent_commands = {}
 local plugin = {}
 
 function users.get_throttle(role)
-    if type(role) == "string" then
-        role = users.get_role(role)
-    end
+	if type(role) == "string" then
+		role = users.get_role(role)
+	end
 
-    assert(type(role) == "table")
+	assert(type(role) == "table")
 
-    if role.throttle then return role.throttle end
+	if role.throttle then return role.throttle end
 
-    return -1
+	return -1
 end
 
 function users.get_command_throttle(role)
-    if type(role) == "string" then
-        role = users.get_role(role)
-    end
+	if type(role) == "string" then
+		role = users.get_role(role)
+	end
 
-    assert(type(role) == "table")
+	assert(type(role) == "table")
 
-    if role.command_throttle then return role.command_throttle end
+	if role.command_throttle then return role.command_throttle end
 
-    return -1
+	return -1
 end
 
 local function loop_hook()
-    local currentTime = socket.gettime()
+	local currentTime = socket.gettime()
 
-    for name,times in pairs(recent_messages) do
-        local user = users.get(name)
-        local tv = users.get_throttle(user.role)
+	for name,times in pairs(recent_messages) do
+		local user = users.get(name)
+		local tv = users.get_throttle(user.role)
 
-        local active = {}
-        for _,time in ipairs(times) do
-            if currentTime - tv < time then
-                insert(active, time)
-            end
-        end
+		local active = {}
+		for _,time in ipairs(times) do
+			if currentTime - tv < time then
+				insert(active, time)
+			end
+		end
 
-        recent_messages[name] = active
-    end
+		recent_messages[name] = active
+	end
 
-    for name,times in pairs(recent_commands) do
-        local user = users.get(name)
-        local tv = users.get_command_throttle(user.role)
+	for name,times in pairs(recent_commands) do
+		local user = users.get(name)
+		local tv = users.get_command_throttle(user.role)
 
-        local active = {}
-        for _,time in ipairs(times) do
-            if currentTime - tv < time then
-                insert(active, time)
-            end
-        end
+		local active = {}
+		for _,time in ipairs(times) do
+			if currentTime - tv < time then
+				insert(active, time)
+			end
+		end
 
-        recent_commands[name] = active
-    end
+		recent_commands[name] = active
+	end
 end
 
 local function premessage_hook(sender, origin, msg, pm)
-    local user = users.get(sender[1])
-    return plugin.check_message(user, msg)
+	local user = users.get(sender[1])
+	return plugin.check_message(user, msg)
 end
 
 function plugin.init()
-    core.hook_premessage(premessage_hook)
-    core.hook_loop(loop_hook)
+	core.hook_premessage(premessage_hook)
+	core.hook_loop(loop_hook)
 end
 
 function plugin.check_message(user, msg)
-    local currentTime = socket.gettime()
+	local currentTime = socket.gettime()
 
-    if #msg > 0 then
-        if msg:sub(1,1) == "!" then
-            if users.get_command_throttle(user.role) < 0 then return true end
+	if #msg > 0 then
+		if msg:sub(1,1) == "!" then
+			if users.get_command_throttle(user.role) < 0 then return true end
 
-            local recent = recent_commands[user.name]
-            if not recent then
-                recent = {}
-                recent_commands[user.name] = recent
-            end
+			local recent = recent_commands[user.name]
+			if not recent then
+				recent = {}
+				recent_commands[user.name] = recent
+			end
 
-            insert(recent, currentTime)
+			insert(recent, currentTime)
 
-            if #recent >= 2 then
-                local tv = users.get_command_throttle(user.role)
-                core.send_to_user(user.name, lang.throttle.command:format(tv))
-                core.timeout(user.name, tv)
-                print("Command throttled " .. user.name)
-                return false
-            end
-        else
-            if users.get_throttle(user.role) < 0 then return true end
+			if #recent >= 2 then
+				local tv = users.get_command_throttle(user.role)
+				core.send_to_user(user.name, lang.throttle.command:format(tv))
+				core.timeout(user.name, tv)
+				print("Command throttled " .. user.name)
+				return false
+			end
+		else
+			if users.get_throttle(user.role) < 0 then return true end
 
-            local recent = recent_messages[user.name]
-            if not recent then
-                recent = {}
-                recent_messages[user.name] = recent
-            end
+			local recent = recent_messages[user.name]
+			if not recent then
+				recent = {}
+				recent_messages[user.name] = recent
+			end
 
-            insert(recent, currentTime)
+			insert(recent, currentTime)
 
-            if #recent >= 2 then
-                local tv = users.get_throttle(user.role)
-                core.send_to_user(user.name, lang.throttle.too_fast:format(tv))
-                core.timeout(user.name, tv)
-                print("Throttled " .. user.name)
-                return false
-            end
-        end
-    end
+			if #recent >= 2 then
+				local tv = users.get_throttle(user.role)
+				core.send_to_user(user.name, lang.throttle.too_fast:format(tv))
+				core.timeout(user.name, tv)
+				print("Throttled " .. user.name)
+				return false
+			end
+		end
+	end
 
-    return true
+	return true
 end
 
 return plugin

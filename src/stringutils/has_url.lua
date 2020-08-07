@@ -15,23 +15,23 @@ local domains = [[.ac.ad.ae.aero.af.ag.ai.al.am.an.ao.aq.ar.arpa.as.asia.at.au
    .ws.xxx.ye.yt.yu.za.zm.zr.zw]]
 local tlds = {}
 for tld in domains:gmatch'%w+' do
-    tlds[tld] = true
+	tlds[tld] = true
 end
 local protocols = {[''] = 0, ['http://'] = 0, ['https://'] = 0, ['ftp://'] = 0 }
 
 return function(str)
-    for pos, url, prot, subd, tld, colon, port, slash, path in str:gmatch
-        '()(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w+)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))'
-    do
-        if protocols[prot:lower()] == (1 - #slash) * #path
-                and (colon == '' or port ~= '' and port + 0 < 65536)
-                and (tlds[tld:lower()] or tld:find'^%d+$' and subd:find'^%d+%.%d+%.%d+%.$'
-                and math.max(tld, subd:match'^(%d+)%.(%d+)%.(%d+)%.$') < 256)
-                and not subd:find'%W%W'
-        then
-            return true
-        end
-    end
+	for pos, url, prot, subd, tld, colon, port, slash, path in str:gmatch
+		'()(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w+)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))'
+	do
+		if protocols[prot:lower()] == (1 - #slash) * #path
+				and (colon == '' or port ~= '' and port + 0 < 65536)
+				and (tlds[tld:lower()] or tld:find'^%d+$' and subd:find'^%d+%.%d+%.%d+%.$'
+				and math.max(tld, subd:match'^(%d+)%.(%d+)%.(%d+)%.$') < 256)
+				and not subd:find'%W%W'
+		then
+			return true
+		end
+	end
 
-    return false
+	return false
 end

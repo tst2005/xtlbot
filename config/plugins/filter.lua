@@ -19,7 +19,7 @@ The "message" key is what the bot sends to the user if their message was blocked
 A warning about using lua's patterns: They aren't the same regular expressions you're used to.
 They aren't as powerful. I suggest installing either LPeg or lrexlib-pcre if you want more than
 Lua's inbuilt pattern matching.
-]]
+]]--
 
 local has_url = require("src.stringutils.has_url")
 local caps_percent = require("src.stringutils.caps_percent")
@@ -27,29 +27,29 @@ local symbols_percent = require("src.stringutils.symbols_percent")
 local lang = require("src.lang")
 
 local config = {
-    rules = {
-        -- URL Rule
-        {
-            message = lang.filter.url,
-            match = has_url
-        },
+	rules = {
+		-- URL Rule
+		{
+			message = lang.filter.url,
+			match = has_url,
+		},
 
-        -- Caps rule
-        -- The default is to fail any strings with > 4 characters that have > 80% caps in them.
-        -- Change the "4" and "0.8" in the match line to change these values.
-        {
-            message = lang.filter.caps,
-            match = function(str) return #str > 4 and caps_percent(str) > 0.8 end
-        },
+		-- Caps rule
+		-- The default is to fail any strings with > 4 characters that have > 80% caps in them.
+		-- Change the "4" and "0.8" in the match line to change these values.
+		{
+			message = lang.filter.caps,
+			match = function(str) return #str > 4 and caps_percent(str) > 0.8 end,
+		},
 
-        -- Symbols rule
-        -- The default is to fail any strings with > 4 characters that have > 80% caps in them.
-        -- Change the "4" and "0.8" in the match line to change these values.
-        {
-            message = lang.filter.symbols,
-            match = function(str) return #str > 4 and symbols_percent(str) > 0.8 end
-        }
-    }
+		-- Symbols rule
+		-- The default is to fail any strings with > 4 characters that have > 80% caps in them.
+		-- Change the "4" and "0.8" in the match line to change these values.
+		{
+			message = lang.filter.symbols,
+			match = function(str) return #str > 4 and symbols_percent(str) > 0.8 end,
+		},
+	},
 }
 
 return config
