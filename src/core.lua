@@ -124,11 +124,15 @@ function core.init()
 	assert(client:connect(config.server, config.port))
 
 	print("Connection successful, logging in as " .. config.username)
+
+	-- twitch require the token as password
 	if config.token then
 		assert(irc:PASS(config.token))
 	end
 	local nickname = config.nickname or config.username
 	assert(irc:NICK(nickname))
+
+	-- twitch does not use/require USER
 	local realname = config.realname or config.username or ""
 	local mode = nil -- 0 or 8 ?! https://tools.ietf.org/html/rfc2812#section-3.1.3
 	assert(irc:USER(config.username, realname, mode))
